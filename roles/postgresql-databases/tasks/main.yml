@@ -1,0 +1,74 @@
+# Setup PostgreSQL databases
+---
+
+- block:
+    - name: Flush PostgreSQL databases
+      postgresql_db: >
+        name={{ item.value.name }} state=absent
+        login_host={{ item.value.host|default(omit) }} port={{ item.value.port|default(omit) }}
+        login_user={{ item.value.login_user|default(omit) }} login_password={{ item.value.login_password|default(omit) }}
+      loop_control:
+        label: '{{ item.value.name }}'
+      tags: flush
+      when: item.value.flush|default(false)|bool and not 'template' in item.value.name
+      with_dict: '{{ postgresql_databases }}'
+
+    - name: Setup PostgreSQL users
+      postgresql_user: >
+        name={{ item.value.user }} password={{ item.value.password }} state=present
+        role_attr_flags={{ item.value.role_flags|default(['SUPERUSER', 'CREATEDB'])|join(',') }}
+        login_host={{ item.value.host|default(omit) }} port={{ item.value.port|default(omit) }}
+        login_user={{ item.value.login_user|default(omit) }} login_password={{ item.value.login_password|default(omit) }}
+      loop_control:
+        label: '{{ item.value.name }}'
+      tags: flush-extra
+      when: not 'template' in item.value.name
+      with_dict: '{{ postgresql_databases }}'
+
+    - name: Setup PostgreSQL databases
+      postgresql_db: >
+        name={{ item.value.name }} encoding={{ item.value.encoding|default('unicode') }} owner={{ item.value.user }}
+        template={{ item.value.template|default('template1') }} state=present
+        login_host={{ item.value.host|default(omit) }} port={{ item.value.port|default(omit) }}
+        login_user={{ item.value.login_user|default(omit) }} login_password={{ item.value.login_password|default(omit) }}
+      loop_control:
+        label: '{{ item.value.name }}'
+      tags: flush-extra
+      when: not 'template' in item.value.name
+      with_dict: '{{ postgresql_databases }}'
+
+    - name: Enable extensions to the PostgreSQL databases
+      postgresql_ext: >
+        db={{ item.0.name }} name={{ item.1 }} state=present
+        login_host={{ item.value.host|default(omit) }} port={{ item.value.port|default(omit) }}
+        login_user={{ item.value.login_user|default(omit) }} login_password={{ item.value.login_password|default(omit) }}
+      loop_control:
+        label: '{{ item.0.name }}'
+      tags: flush-extra
+      with_subelements:
+        - "{{ postgresql_databases.values()|selectattr('extensions', 'defined')|list }}"
+        - extensions
+
+    - name: Remove PostgreSQL unit-test databases
+      postgresql_db: >
+        name=test_{{ item.value.name }} state=absent
+        login_host={{ item.value.host|default(omit) }} port={{ item.value.port|default(omit) }}
+        login_user={{ item.value.login_user|default(omit) }} login_password={{ item.value.login_password|default(omit) }}
+      loop_control:
+        label: '{{ item.value.name }}'
+      tags: unit_test
+      when: item.value.with_test|default(false)|bool
+      with_dict: '{{ postgresql_databases }}'
+
+    - name: Allow PostgreSQL users to access PostgreSQL databases
+      postgresql_privs: >
+        db={{ item.value.name }} type=database priv=ALL role={{ item.value.user }} state=present
+        login_host={{ item.value.host|default(omit) }} port={{ item.value.port|default(omit) }}
+        login_user={{ item.value.login_user|default(omit) }} login_password={{ item.value.login_password|default(omit) }}
+      loop_control:
+        label: '{{ item.value.name }}'
+      tags: flush-extra
+      when: not 'template' in item.value.name
+      with_dict: '{{ postgresql_databases }}'
+  run_once: yes
+  tags: [postgresql-databases, databases]
