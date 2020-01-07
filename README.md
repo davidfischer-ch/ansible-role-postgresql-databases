@@ -22,6 +22,8 @@ TODO VARIABLES
     - database
   roles:
     - postgresql-databases
+  vars:
+    postgresql_databases_role_action: setup
 ```
 
 ### Variables

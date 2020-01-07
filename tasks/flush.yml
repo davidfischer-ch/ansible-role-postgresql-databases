@@ -1,0 +1,18 @@
+# Flush PostgreSQL databases
+---
+
+- name: Flush PostgreSQL databases
+  postgresql_db:
+    name: '{{ item.value.name }}'
+    login_host: '{{ item.value.host|default(omit) }}'
+    login_user: '{{ item.value.login_user|default(omit) }}'
+    login_password: '{{ item.value.login_password|default(omit) }}'
+    port: '{{ item.value.port|default(omit) }}'
+    state: absent
+  loop_control:
+    label: '{{ item.value.name }}'
+  when: not 'template' in item.value.name
+  with_dict: '{{ postgresql_databases }}'
+  run_once: yes
+
+- import_tasks: setup.yml

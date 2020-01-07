@@ -1,0 +1,3 @@
+postgresql_databases_role_actions:
+  - flush
+  - setup
