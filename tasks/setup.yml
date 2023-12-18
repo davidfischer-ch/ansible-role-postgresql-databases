@@ -64,4 +64,4 @@
       loop_control:
         label: 'db->{{ item.0.value.name }} user->{{ item.1.name }}'
       when: not 'template' in item.0.value.name
-  run_once: yes
+  run_once: true

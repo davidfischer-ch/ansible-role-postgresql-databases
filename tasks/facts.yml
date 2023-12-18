@@ -1,13 +1,13 @@
 ---
 
 - block:
-    - assert:
+    - ansible.builtin.assert:
         that:
           - postgresql_databases is defined
           - postgresql_databases_role_action in postgresql_databases_role_actions
 
     - name: Deprecation error for users
-      fail:
+      ansible.builtin.fail:
         msg: 'Please define user {{ item.value.user }} with the new method.'
       loop_control:
         label: '{{ item.value.name }}'
@@ -15,7 +15,7 @@
       with_dict: '{{ postgresql_databases }}'
 
     - name: Deprecation error for flush
-      fail:
+      ansible.builtin.fail:
         msg: 'Please request a flush with postgresql_databses_role_action set to "flush".'
       loop_control:
         label: '{{ item.value.name }}'

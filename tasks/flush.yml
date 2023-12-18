@@ -13,6 +13,6 @@
     label: '{{ item.value.name }}'
   when: not 'template' in item.value.name
   with_dict: '{{ postgresql_databases }}'
-  run_once: yes
+  run_once: true
 
 - import_tasks: setup.yml
