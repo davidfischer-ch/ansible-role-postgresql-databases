@@ -2,7 +2,7 @@
 ---
 
 - name: Flush PostgreSQL databases
-  postgresql_db:
+  community.postgresql.postgresql_db:
     name: '{{ item.value.name }}'
     login_host: '{{ item.value.host|default(omit) }}'
     login_user: '{{ item.value.login_user|default(omit) }}'

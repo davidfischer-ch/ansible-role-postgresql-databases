@@ -3,7 +3,7 @@
 
 - block:
     - name: Setup PostgreSQL databases
-      postgresql_db:
+      community.postgresql.postgresql_db:
         name: '{{ item.value.name }}'
         encoding: "{{ item.value.encoding|default('unicode') }}"
         template: "{{ item.value.template|default('template1') }}"
@@ -18,7 +18,7 @@
       with_dict: '{{ postgresql_databases }}'
 
     - name: Setup PostgreSQL users
-      postgresql_user:
+      community.postgresql.postgresql_user:
         name: '{{ item.1.name }}'
         db: '{{ item.0.value.name }}'
         encrypted: '{{ item.1.password_encrypted|default(omit) }}'
@@ -37,7 +37,7 @@
       when: not 'template' in item.0.value.name
 
     - name: Enable extensions to the PostgreSQL databases
-      postgresql_ext:
+      community.postgresql.postgresql_ext:
         name: '{{ item.1 }}'
         db: '{{ item.0.name }}'
         login_host: '{{ item.0.host|default(omit) }}'
@@ -50,7 +50,7 @@
         label: '{{ item.0.name }} extension {{ item.1 }}'
 
     - name: Allow PostgreSQL users to access PostgreSQL databases
-      postgresql_privs:
+      community.postgresql.postgresql_privs:
         db: '{{ item.0.value.name }}'
         login_host: '{{ item.0.value.host|default(omit) }}'
         login_user: '{{ item.0.value.login_user|default(omit) }}'
