@@ -29,7 +29,7 @@
         no_password_changes: '{{ not item.1.password_update|default(true) }}'
         port: '{{ item.0.value.port|default(omit) }}'
         priv: "{{ item.1.priv|default([])|join('/') or omit }}"
-        role_attr_flags: "{{ item.1.role_flags|join(',') }}"
+        role_attr_flags: "{{ item.1.role_flags|default([])|join(',') }}"
         state: present
       loop: "{{ postgresql_databases|dict2items|subelements('value.users', skip_missing=true) }}"
       loop_control:
