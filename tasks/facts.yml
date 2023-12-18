@@ -22,3 +22,5 @@
       when: not 'template' in item.value.name and item.value.flush is defined
       with_dict: '{{ postgresql_databases }}'
   tags: always
+
+...

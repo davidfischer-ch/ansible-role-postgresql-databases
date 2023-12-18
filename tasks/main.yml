@@ -5,3 +5,5 @@
     - import_tasks: facts.yml
     - import_tasks: '{{ postgresql_databases_role_action }}.yml'
   tags: [postgresql-databases, databases]
+
+...

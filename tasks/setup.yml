@@ -82,3 +82,5 @@
         label: 'db->{{ item.0.value.name }} user->{{ item.1.name }}'
       when: not 'template' in item.0.value.name and item.1.schema_admin|default(false)|bool
   run_once: true
+
+...
