@@ -64,4 +64,21 @@
       loop_control:
         label: 'db->{{ item.0.value.name }} user->{{ item.1.name }}'
       when: not 'template' in item.0.value.name
+
+    - name: Allow PostgreSQL users to administrate PostgreSQL databases schema
+      community.postgresql.postgresql_privs:
+        db: '{{ item.0.value.name }}'
+        login_host: '{{ item.0.value.host|default(omit) }}'
+        login_user: '{{ item.0.value.login_user|default(omit) }}'
+        login_password: '{{ item.0.value.login_password|default(omit) }}'
+        port: '{{ item.0.value.port|default(omit) }}'
+        objs: public
+        priv: ALL
+        role: '{{ item.1.name }}'
+        state: present
+        type: schema
+      loop: "{{ postgresql_databases|dict2items|subelements('value.users', skip_missing=true) }}"
+      loop_control:
+        label: 'db->{{ item.0.value.name }} user->{{ item.1.name }}'
+      when: not 'template' in item.0.value.name and item.1.schema_admin|default(false)|bool
   run_once: true
